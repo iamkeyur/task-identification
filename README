@@ -1,1 +1,4 @@
-This file was created by PyCharm 2.7.2 for binding GitHub repository
+# Project Overview
+
+In this project, we are trying to use the latest research on task identification
+in WSE (Web Search Engine) query logs to identify tasks from *AOL query logs*.
