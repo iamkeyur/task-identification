@@ -40,7 +40,7 @@ class TimeSplitter:
 
                 diff = self.diff(query_time, previous_time)
 
-                # print(query)
+                print(query)
                 if abs(diff).seconds >= 26 * 60:
                     print('-' * 30)
 
