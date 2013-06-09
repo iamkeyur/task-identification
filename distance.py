@@ -30,6 +30,7 @@ def levenshtein(seq1, seq2):
             if x > 0 and y > 0 and seq1[x] == seq2[y - 1] and seq1[x - 1] == seq2[y] and seq1[x] != seq2[y]:
                 this_row[y] = min(this_row[y], two_ago[y - 2] + 1)
 
+    # normalization using the average length of 2 strings
     return this_row[len(seq2) - 1] / (len(seq1) + len(seq2)) * 2
 
 

@@ -56,3 +56,5 @@ Icon
 # Data set
 AOL-user-ct-collection/
 *.txt
+*.tar.gz
+en/
