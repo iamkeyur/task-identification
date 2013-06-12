@@ -2,7 +2,10 @@ from multiprocessing import Pool
 from time import time
 from nltk.util import clean_html
 import nltk
-
+import os
+from bs4 import BeautifulSoup
+import json
+from preprocess import Processor
 
 def occurrence(word):
     return [(word, 1)]
@@ -12,6 +15,7 @@ def occurrenceCount(keyVal):
     return keyVal[0], sum(keyVal[1])
 
 
+# try to use a parallel method
 class MapReduce(object):
 
     def __init__(self, mapper, reducer, numProcs=None):
@@ -39,13 +43,14 @@ class MapReduce(object):
 
 
 def word_count(s):
-    # t1 = time()
-    raw = clean_html(s)
-    # t2 = time()
-    wl = nltk.word_tokenize(raw)
-    # t3 = time()
+    soup = BeautifulSoup(s)
+    imm = soup.find_all(id='bodyContent')
+    if len(imm) > 0:
+        raw = soup.find_all(id='bodyContent')[0].get_text()
+    else:
+        raw = ''
 
-    # print(t2 - t1, t3 - t2)
+    wl = nltk.word_tokenize(raw)
 
     vector = dict()
     for token in wl:
@@ -57,8 +62,80 @@ def word_count(s):
     return vector
 
 
+def reader(path, target):
+    id = 0
+    list_dirs = os.walk(path)
+    data = []
+
+    for root, dirs, files in list_dirs:
+        for f in files:
+            if f[-4:] != 'html':
+                continue
+
+            with open(os.path.join(root, f), 'r', encoding='utf-8') as html:
+                v = word_count(html.read())
+                print(id)
+                data.append(v)
+
+            id += 1
+
+    with open('{}/{}.txt'.format(target, 'all'), 'w') as vector:
+        vector.write(json.dumps(data))
+
+
+def buf_reader(path, target):
+    id = 0
+    list_dirs = os.walk(path)
+    # data = []
+
+    vector = open('{}/{}.txt'.format(target, 'all_large'), 'w')
+
+    for root, dirs, files in list_dirs:
+        for f in files:
+            if f[-4:] != 'html':
+                continue
+
+            with open(os.path.join(root, f), 'r', encoding='utf-8') as html:
+                v = word_count(html.read())
+                print(id)
+                #data.append(v)
+                vector.write(json.dumps(v) + '\n')
+
+            id += 1
+
+
+def buf_generate_vector(path, target):
+
+    p = Processor('', 0)
+
+    inverted_index = {}
+    vector = []
+
+    with open(path, 'r', encoding='utf-8') as source:
+        doc_id = 0
+        # print('doc count', len(vector))
+        for line in source:
+            print(doc_id)
+            doc = json.loads(line[:-1])
+            for term in doc:
+                tidy = p.trim(term).lower()
+                if tidy != '':
+                    t = p.remove_stop_words(tidy)
+                    t = p.porter_stemming(t)
+                    if t != '':
+                        if t in inverted_index:
+                            inverted_index[t][doc_id] = doc[term]
+                        else:
+                            inverted_index[t] = {doc_id: doc[term]}
+
+            doc_id += 1
+
+    with open(target, 'w', encoding='utf-8') as dst:
+        dst.write(json.dumps(inverted_index))
+
 if __name__ == '__main__':
 
-    with open('/Users/susen/Projects/cs290n/en/articles/a/g/f/Agfa_Optima_1535_Sensor_2732.html', 'r') as html:
-        v = word_count(html.read())
-        print(v)
+    #reader('/Users/susen/Projects/cs290n/en/', '/Users/susen/Projects/cs290n/intermediate/')
+    #buf_reader('/Users/susen/Projects/cs290n/en/', '/Users/susen/Projects/cs290n/intermediate/')
+    buf_generate_vector('/Users/susen/Projects/cs290n/intermediate/all_large.txt',
+                        '/Users/susen/Projects/cs290n/intermediate/index_large.txt')
