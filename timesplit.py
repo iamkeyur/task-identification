@@ -3,8 +3,8 @@ from datetime import datetime
 
 class TimeSplitter:
 
-    def __init__(self, path):
-        self.split(path)
+    def __init__(self, path, time_gap=26):
+        self.time_gap = time_gap
 
     def parse(self, date_string):
         return datetime.strptime(date_string, '%Y-%m-%d %H:%M:%S')
@@ -15,7 +15,7 @@ class TimeSplitter:
     def split(self, path):
 
         session = dict()
-        task = dict()
+        order = []
 
         with open(path, 'r', encoding='utf-8') as input:
 
@@ -26,23 +26,31 @@ class TimeSplitter:
 
                 if AnonID != current_user:
                     current_user = AnonID
+                    order.append(AnonID)
                     session[AnonID] = []
 
                 session[AnonID].append((Query, QueryTime))
 
-        for user_id in session:
-            previous_time = '2006-01-01 00:00:00'
-            for query_id in range(len(session[user_id]) - 1):
-                query = session[user_id][query_id][0]
-                query_time = session[user_id][query_id][1]
-                if query_id > 0:
-                    previous_time = session[user_id][query_id - 1][1]
+        doc_id = 0
 
-                diff = self.diff(query_time, previous_time)
+        order = ['2178', '3769']
 
-                print(query)
-                if abs(diff).seconds >= 26 * 60:
-                    print('-' * 30)
+        for user_id in order:
+
+            with open('/Users/susen/Projects/cs290n/intermediate/{}.log'.format(user_id)) as log:
+                for query_id in range(len(session[user_id])):
+                    query = session[user_id][query_id][0]
+                    query_time = session[user_id][query_id][1]
+                    if query_id < len(session[user_id]) - 1:
+                        next_time = session[user_id][query_id + 1][1]
+
+                    log.write(query + '\n')
+
+                    diff = self.diff(query_time, next_time)
+                    if abs(diff).seconds >= self.time_gap * 60:
+                        log.write('#\n')
+
+                    doc_id += 1
 
 
 if __name__ == '__main__':
