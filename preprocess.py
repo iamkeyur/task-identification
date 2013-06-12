@@ -11,7 +11,8 @@ class Processor:
             for line in sw:
                 self.stop.add(line[:-1])
 
-        self.process(path, num_records)
+        if path != '' and num_records != 0:
+            self.process(path, num_records)
 
     def process(self, path, num_records):
         with open(path, 'r', encoding='utf-8') as src:
@@ -45,4 +46,4 @@ class Processor:
 
 
 if __name__ == '__main__':
-    p = Processor('AOL-user-ct-collection/user-ct-test-collection-01.txt', 1000)
+    p = Processor('AOL-user-ct-collection/user-ct-test-collection-01.txt', 5000)
