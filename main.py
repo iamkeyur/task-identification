@@ -16,9 +16,9 @@ def do_exp(path, start=0):
     offset = start
 
     for s in sequence:
-        c = Cluster(s, lexical, semantic, start=offset)
+        c = Cluster(s, lexical, semantic, start=offset, threshold=0.2)
         c.wcc()
-        cluster += c.generate_cluster(c.result)
+        cluster += c.generate_cluster(c.result, time_only=False)
         offset += len(s)
 
     return cluster
@@ -89,7 +89,7 @@ if __name__ == '__main__':
     s = TimeSplitter('sample.txt', time_gap=26)  # set time session gap as 26 minutes
 
     print('User #2178')
-    predicted = do_exp('/Users/susen/Projects/cs290n/intermediate/2178.log', start=205)
+    predicted = do_exp('/Users/susen/Projects/cs290n/intermediate/2178.txt', start=205)
     standard = read_standard('/Users/susen/Projects/cs290n/intermediate/2178.labeled.txt')
     TP, FP, FN, TN = get_score(predicted, standard, (205, 324))
     # print(standard)
@@ -98,9 +98,12 @@ if __name__ == '__main__':
     print('F1 Score =', F1_score(TP, FP, FN, TN))
     print('Rand Index =', RI(TP, FP, FN, TN))
     print('Jaccard Index = ', JI(TP, FP, FN, TN))
+    f1 = F1_score(TP, FP, FN, TN)
+    r1 = RI(TP, FP, FN, TN)
+    j1 = JI(TP, FP, FN, TN)
 
     print('\nUser #3796:')
-    predicted = do_exp('/Users/susen/Projects/cs290n/intermediate/3769.log', start=1506)
+    predicted = do_exp('/Users/susen/Projects/cs290n/intermediate/3769.txt', start=1506)
     standard = read_standard('/Users/susen/Projects/cs290n/intermediate/3769.labeled.txt')
     TP, FP, FN, TN = get_score(predicted, standard, (1506, 1575))
     # print(standard)
@@ -109,3 +112,10 @@ if __name__ == '__main__':
     print('F1 Score =', F1_score(TP, FP, FN, TN))
     print('Rand Index =', RI(TP, FP, FN, TN))
     print('Jaccard Index = ', JI(TP, FP, FN, TN))
+    f2 = F1_score(TP, FP, FN, TN)
+    r2 = RI(TP, FP, FN, TN)
+    j2 = JI(TP, FP, FN, TN)
+
+    print('F=', (f1 + f2) / 2)
+    print('RI=', (r1 + r2) / 2)
+    print('JI=', (j1 + j2) / 2)

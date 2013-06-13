@@ -3,7 +3,7 @@ import copy
 
 
 class Cluster:
-    def __init__(self, sequence, l, s, start=0, t=0.5, b=4, threshold=0.3):
+    def __init__(self, sequence, l, s, start=0, threshold=0.2, t=0.5, b=5):
         self.lexical = l  # Lexical()
         self.semantic = s  # Semantic('/Users/susen/Projects/cs290n/intermediate/index.txt')
         self.sequence = sequence
@@ -38,7 +38,12 @@ class Cluster:
                 if 1 - similarity < self.threshold:
                     self.result[i].remove(j)
 
-    def generate_cluster(self, graph):
+    def generate_cluster(self, graph, time_only=False):
+
+        if time_only:
+            all = set([i+self.start for i in range(len(self.sequence))])
+            return [all]
+
         cluster = []
         result = [{'cluster': set([i] + graph[i]), 'visited': False} for i in graph]
         # print(result)
@@ -83,9 +88,6 @@ class Cluster:
             final_cluster.append(set())
             for i in c:
                 final_cluster[-1].add(i + self.start)
-
-        # for c in final_cluster:
-        #     print([self.sequence[i - self.start] for i in c])
 
         return final_cluster
 

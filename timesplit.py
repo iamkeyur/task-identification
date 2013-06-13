@@ -3,8 +3,9 @@ from datetime import datetime
 
 class TimeSplitter:
 
-    def __init__(self, path, time_gap=26):
+    def __init__(self, path, time_gap):
         self.time_gap = time_gap
+        self.split(path)
 
     def parse(self, date_string):
         return datetime.strptime(date_string, '%Y-%m-%d %H:%M:%S')
@@ -37,7 +38,7 @@ class TimeSplitter:
 
         for user_id in order:
 
-            with open('/Users/susen/Projects/cs290n/intermediate/{}.log'.format(user_id)) as log:
+            with open('/Users/susen/Projects/cs290n/intermediate/{}.txt'.format(user_id), 'w') as log:
                 for query_id in range(len(session[user_id])):
                     query = session[user_id][query_id][0]
                     query_time = session[user_id][query_id][1]
